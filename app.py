@@ -8,63 +8,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
 # =====================================
-# SESSION STATE UNTUK DETAIL
+# SESSION STATE
 # =====================================
 if "selected_detail" not in st.session_state:
     st.session_state.selected_detail = None
-
-# =====================================
-# CSS NETFLIX STYLE
-# =====================================
-st.markdown("""
-<style>
-
-.main-container {
-    max-width: 1200px;
-    margin: auto;
-}
-
-.movie-card button {
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-.movie-card img {
-    border-radius: 10px;
-    transition: transform 0.2s;
-}
-
-.movie-card img:hover {
-    transform: scale(1.05);
-}
-
-.detail-card {
-    background-color: #0e1117;
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 20px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# =====================================
-# HEADER
-# =====================================
-st.markdown("""
-<div class="main-container">
-<h1 style="text-align:center;">🎬 Movie Recommendatorzzz</h1>
-<p style="text-align:center;color:gray;">
-Klik poster untuk melihat detail film
-</p>
-</div>
-""", unsafe_allow_html=True)
 
 # =====================================
 # LOAD DATA
@@ -83,33 +34,44 @@ tfidf_matrix = vectorizer.fit_transform(df["combined"])
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
+# HEADER
+# =====================================
+st.title("🎬 Movie Recommendatorzzz")
+
+# =====================================
 # FORM
 # =====================================
-with st.form("recommend_form"):
+with st.form("form"):
 
     movie_options = [""] + df["title"].tolist()
 
     selected_movie = st.selectbox(
         "Pilih Film Favorit:",
-        options=movie_options,
+        movie_options,
         index=0,
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
     min_rating = st.number_input(
-        "Minimal Rating:",
+        "Minimal Rating",
         0.0, 10.0, 6.0
     )
 
     top_n = st.number_input(
-        "Jumlah Rekomendasi:",
+        "Jumlah Rekomendasi",
         1, 20, 10
     )
 
-    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+    # =====================================
+    # TOMBOL DI TENGAH
+    # =====================================
+    col1, col2, col3 = st.columns([2,1,2])
+
+    with col2:
+        recommend = st.form_submit_button("🎯 Cari")
 
 # =====================================
-# RECOMMENDATION GRID
+# GRID POSTER
 # =====================================
 if recommend and selected_movie != "":
 
@@ -127,9 +89,8 @@ if recommend and selected_movie != "":
 
     recommended_movies = similarity_scores[1:int(top_n)+1]
 
-    st.markdown("## 🎞️ Rekomendasi")
+    st.subheader("Klik Poster")
 
-    # responsive columns
     cols = st.columns(5)
 
     for idx, (i, score) in enumerate(recommended_movies):
@@ -149,42 +110,34 @@ if recommend and selected_movie != "":
         with col:
 
             if st.button(
-                "",
-                key=f"movie_{i}",
+                movie["title"],
+                key=f"btn_{i}",
                 use_container_width=True
             ):
                 st.session_state.selected_detail = i
 
             st.image(poster, use_container_width=True)
-            st.caption(movie["title"])
 
 # =====================================
-# DETAIL PANEL
+# DETAIL
 # =====================================
 if st.session_state.selected_detail is not None:
 
     movie = df.iloc[st.session_state.selected_detail]
 
-    poster = movie.get("poster_url", "")
+    st.divider()
 
-    st.markdown("## 🎬 Detail Film")
+    st.header("Detail Film")
 
     col1, col2 = st.columns([1,2])
 
     with col1:
-
-        if pd.notna(poster):
-            st.image(poster, use_container_width=True)
+        st.image(movie["poster_url"], use_container_width=True)
 
     with col2:
-
-        st.markdown(f"### {movie['title']} ({movie['year']})")
-
-        st.write(f"⭐ Rating: {movie['rating']}")
-
-        st.write(f"🎭 Genre: {movie['genre']}")
-
-        st.write(f"📺 Nonton di: {movie['streaming_provider']}")
-
-        st.write("### Deskripsi")
+        st.subheader(movie["title"])
+        st.write("⭐ Rating:", movie["rating"])
+        st.write("🎭 Genre:", movie["genre"])
+        st.write("📺 Nonton di:", movie["streaming_provider"])
+        st.write("📝 Deskripsi:")
         st.write(movie["description"])
