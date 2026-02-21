@@ -126,14 +126,14 @@ if st.button("🎯 Cari Rekomendasi"):
                    / (max_score - min_score)) * 9
             )
 
-       results.append({
-            "Title": filtered_df.iloc[i]["title"],
-            "Year": filtered_df.iloc[i]["year"],
-            "Genre": filtered_df.iloc[i]["genre"],
-            "Rating": filtered_df.iloc[i]["rating"],
-            "Nonton di": filtered_df.iloc[i]["streaming_provider"],
-            "Similarity Score": round(scaled_score, 2)
-        })
+           results.append({
+                "Title": filtered_df.iloc[i]["title"],
+                "Year": filtered_df.iloc[i]["year"],
+                "Genre": filtered_df.iloc[i]["genre"],
+                "Rating": filtered_df.iloc[i]["rating"],
+                "Nonton di": filtered_df.iloc[i]["streaming_provider"],
+                "Similarity Score": round(scaled_score, 2)
+            })
 
     # ==========================
     # TABEL HASIL
