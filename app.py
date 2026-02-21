@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # =====================================
-# PAGE CONFIG (HARUS PALING ATAS)
+# CONFIG
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
@@ -13,52 +13,53 @@ st.set_page_config(
 )
 
 # =====================================
-# CSS FIX MOBILE DROPDOWN
+# CSS FIX MOBILE + DROPDOWN STYLE
 # =====================================
 st.markdown("""
 <style>
 
-/* center container */
+/* center layout */
 .block-container {
     max-width: 520px;
     padding-top: 20px;
 }
 
-/* fix dropdown supaya selalu ke bawah */
-div[data-baseweb="popover"] {
-    transform: none !important;
-    top: 100% !important;
-    bottom: auto !important;
-}
-
-/* perbaiki posisi select */
-div[data-baseweb="select"] {
-    position: relative !important;
-}
-
-/* dropdown scroll */
-div[role="listbox"] {
-    max-height: 300px !important;
-    overflow-y: auto !important;
-    z-index: 9999 !important;
-}
-
-/* form styling */
-form {
+/* form box */
+.form-box {
     border: 1px solid #333;
-    padding: 16px;
     border-radius: 12px;
+    padding: 16px;
 }
 
-/* button full width */
-.stFormSubmitButton button {
+/* radio jadi dropdown style */
+div[role="radiogroup"] {
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 8px;
+    background-color: #1e1e1e;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* radio item */
+div[role="radio"] {
+    padding: 10px !important;
+    border-radius: 8px;
+}
+
+/* hover */
+div[role="radio"]:hover {
+    background-color: #333;
+}
+
+/* button */
+.stButton button {
     width: 100%;
     border-radius: 10px;
     padding: 12px;
-    font-weight: bold;
 }
 
-/* poster */
+/* image */
 img {
     border-radius: 10px;
 }
@@ -87,46 +88,44 @@ df["combined"] = (
     df["description"].fillna("")
 )
 
-# TF-IDF
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = vectorizer.fit_transform(df["combined"])
 
-# similarity matrix
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
-# FORM INPUT (STABIL MOBILE)
+# FORM
 # =====================================
-with st.form("recommend_form"):
+st.markdown('<div class="form-box">', unsafe_allow_html=True)
 
-    st.markdown("### Pilih Film Favorit:")
+st.markdown("**Pilih Film Favorit:**")
 
-    selected_movie = st.selectbox(
-        "",
-        df["title"].tolist(),
-        index=0,
-        label_visibility="collapsed"
-    )
+selected_movie = st.radio(
+    "",
+    df["title"].tolist(),
+    index=0
+)
 
-    min_rating = st.number_input(
-        "Minimal Rating:",
-        min_value=0.0,
-        max_value=10.0,
-        value=6.0,
-        step=0.1
-    )
+min_rating = st.number_input(
+    "Minimal Rating:",
+    0.0,
+    10.0,
+    6.0
+)
 
-    top_n = st.number_input(
-        "Jumlah Rekomendasi:",
-        min_value=1,
-        max_value=20,
-        value=5
-    )
+top_n = st.number_input(
+    "Jumlah Rekomendasi:",
+    1,
+    20,
+    5
+)
 
-    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+recommend = st.button("🎯 Cari Rekomendasi")
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================
-# RECOMMENDATION OUTPUT
+# RECOMMENDATION
 # =====================================
 if recommend:
 
@@ -161,13 +160,8 @@ if recommend:
 
             poster = movie.get("poster_url", "")
 
-            if pd.notna(poster) and poster != "":
+            if pd.notna(poster):
                 st.image(poster, use_container_width=True)
-            else:
-                st.image(
-                    "https://via.placeholder.com/300x450?text=No+Poster",
-                    use_container_width=True
-                )
 
         with col2:
 
