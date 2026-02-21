@@ -65,10 +65,10 @@ with st.form("form"):
     # =====================================
     # TOMBOL DI TENGAH
     # =====================================
-    col1, col2, col3 = st.columns([2,1,2])
+    col1, col2, col3 = st.columns([1,2,1])
 
     with col2:
-        recommend = st.form_submit_button("🎯 Cari")
+        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
 # =====================================
 # GRID POSTER
