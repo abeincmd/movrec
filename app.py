@@ -87,7 +87,7 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # =====================================
 # FORM CONTAINER (STABIL)
 # =====================================
-
+with st.container():
 
     st.markdown('<div class="form-card">', unsafe_allow_html=True)
 
