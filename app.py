@@ -91,11 +91,18 @@ div.stFormSubmitButton button {
 # HEADER
 # =====================================
 st.markdown("""
-<h1 style='text-align:center;'>🎬</h1>
-<h2 style='text-align:center;'>Movie Recommendator</h2>
-<p style='text-align:center; color:gray;'>
-Temukan film terbaik berdasarkan favoritmu
-</p>
+<div style="
+    text-align:center;
+    margin-top: -20px;
+">
+    <div style="font-size:40px;">🎬</div>
+    <div style="font-size:28px; font-weight:700;">
+        Movie Recommendator
+    </div>
+    <div style="color:gray; margin-top:5px;">
+        Temukan film terbaik berdasarkan favoritmu
+    </div>
+</div>
 """, unsafe_allow_html=True)
 
 # =====================================
