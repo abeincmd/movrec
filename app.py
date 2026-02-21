@@ -9,8 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
 # =====================================
@@ -19,46 +18,32 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* scroll container */
 .row-container {
+    display: flex;
     overflow-x: auto;
-    white-space: nowrap;
-    padding-bottom: 15px;
+    gap: 12px;
+    padding-bottom: 10px;
 }
 
-/* card */
 .movie-card {
-    display: inline-block;
-    margin-right: 12px;
+    flex: 0 0 auto;
 }
 
-/* hover effect */
 .movie-card img {
     border-radius: 12px;
-    transition: transform 0.25s;
+    transition: transform 0.2s;
 }
 
 .movie-card img:hover {
     transform: scale(1.08);
 }
 
-/* sizes */
 .poster-large img {
     height: 270px;
 }
 
 .poster-medium img {
     height: 200px;
-}
-
-/* scrollbar */
-.row-container::-webkit-scrollbar {
-    height: 6px;
-}
-
-.row-container::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 10px;
 }
 
 </style>
@@ -74,11 +59,7 @@ st.title("🎬 Movie Recommendatorzzz")
 # =====================================
 df = pd.read_csv("movies.csv")
 
-df["combined"] = (
-    df["genre"].fillna("") +
-    " " +
-    df["description"].fillna("")
-)
+df["combined"] = df["genre"].fillna("") + " " + df["description"].fillna("")
 
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = vectorizer.fit_transform(df["combined"])
@@ -105,13 +86,13 @@ with st.form("form"):
         recommend = st.form_submit_button("🎯 Cari")
 
 # =====================================
-# FUNCTION RENDER ROW
+# FUNCTION RENDER ROW (FIXED)
 # =====================================
-def render_row(title, movies, size="medium"):
+def render_row(title, movies, size):
 
     st.subheader(title)
 
-    html = '<div class="row-container">'
+    html = "<div class='row-container'>"
 
     for _, movie in movies.iterrows():
 
@@ -137,9 +118,7 @@ if recommend and selected_movie != "":
 
     movie_index = df[df["title"] == selected_movie].index[0]
 
-    similarity_scores = list(
-        enumerate(similarity_matrix[movie_index])
-    )
+    similarity_scores = list(enumerate(similarity_matrix[movie_index]))
 
     similarity_scores = sorted(
         similarity_scores,
@@ -154,22 +133,22 @@ if recommend and selected_movie != "":
     render_row(
         "🎯 Rekomendasi Untuk Kamu",
         recommended_movies,
-        size="large"
+        "large"
     )
 
 # =====================================
-# BARIS 2 MUNGKIN SUKA
+# BARIS 2 RANDOM
 # =====================================
-random_movies = df.sample(min(15, len(df)))
+random_movies = df.sample(min(len(df), 15))
 
 render_row(
     "👍 Mungkin Kamu Suka",
     random_movies,
-    size="medium"
+    "medium"
 )
 
 # =====================================
-# BARIS 3 RATING TERTINGGI
+# BARIS 3 TOP RATED
 # =====================================
 top_rated = df.sort_values(
     by="rating",
@@ -179,5 +158,5 @@ top_rated = df.sort_values(
 render_row(
     "⭐ Rating Tertinggi",
     top_rated,
-    size="medium"
+    "medium"
 )
