@@ -103,7 +103,6 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # =====================================
 with st.form("form"):
 
-    # WAJIB ADA INI
     movie_options = [""] + df["title"].tolist()
 
     selected_movie = st.selectbox(
@@ -113,12 +112,16 @@ with st.form("form"):
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    st.write("")
+    st.write("")  # spacer
 
-    left, center, right = st.columns([3,2,3])
+    # trik center tombol
+    col_left, col_center, col_right = st.columns([1,2,1])
 
-    with center:
-        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+    with col_center:
+        recommend = st.form_submit_button(
+            "🎯 Cari Rekomendasi",
+            use_container_width=True
+        )
     
         
 # =====================================
