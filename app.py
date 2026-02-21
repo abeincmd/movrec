@@ -58,6 +58,16 @@ img {
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+form {
+    border: 1px solid #333;
+    padding: 16px;
+    border-radius: 12px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # =====================================
 # HEADER
 # =====================================
@@ -87,37 +97,33 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # =====================================
 # FORM CONTAINER (STABIL)
 # =====================================
-with st.container():
+with st.form("recommend_form", clear_on_submit=False):
 
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
+    st.markdown("### Pilih Film Favorit:")
 
-    with st.form("recommend_form", clear_on_submit=False):
+    selected_movie = st.selectbox(
+        label="",
+        options=df["title"].tolist(),
+        index=0,
+        label_visibility="collapsed"
+    )
 
-        st.markdown("**Pilih Film Favorit:**")
+    min_rating = st.number_input(
+        "Minimal Rating:",
+        min_value=0.0,
+        max_value=10.0,
+        value=6.0,
+        step=0.1
+    )
 
-        selected_movie = st.selectbox(
-            label="",
-            options=df["title"].tolist(),
-            index=0,
-            label_visibility="collapsed"
-        )
+    top_n = st.number_input(
+        "Jumlah Rekomendasi:",
+        min_value=1,
+        max_value=20,
+        value=5
+    )
 
-        min_rating = st.number_input(
-            "Minimal Rating:",
-            min_value=0.0,
-            max_value=10.0,
-            value=6.0,
-            step=0.1
-        )
-
-        top_n = st.number_input(
-            "Jumlah Rekomendasi:",
-            min_value=1,
-            max_value=20,
-            value=5
-        )
-
-        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
