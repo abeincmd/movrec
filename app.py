@@ -84,29 +84,36 @@ div.stFormSubmitButton button {
     border-radius: 10px;
 }
 
+/* hilangkan jarak atas */
+.block-container {
+    padding-top: 1rem;
+}
+
+/* optional: hilangkan jarak bawah header */
+h1, h2, h3 {
+    margin-top: 0px;
+}
+
+/* optional: center container lebih rapat */
+div[data-testid="stAppViewContainer"] {
+    padding-top: 0rem;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # =====================================
 # HEADER
 # =====================================
-st.markdown("""
-<div style="
-    text-align:center;
-    margin-top: -20px;
-">
+<div style="text-align:center; margin-top:0px;">
     <div style="font-size:40px;">🎬</div>
-    <div style="font-size:36px; font-weight:700;">
+    <div style="font-size:28px; font-weight:700;">
         Movie Recommendator
     </div>
-    <div style="color:gray; margin-top:5px;">
+    <div style="color:gray;">
         Temukan film terbaik berdasarkan favoritmu
-        <br>
-    </div>
-    <div style="color:gray; margin-top:5px;">
     </div>
 </div>
-""", unsafe_allow_html=True)
 
 # =====================================
 # LOAD DATA
