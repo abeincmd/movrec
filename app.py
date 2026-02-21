@@ -34,6 +34,7 @@ form {
     border-radius: 10px;
     padding: 12px;
     font-weight: bold;
+    align:center;
 }
 
 img {
@@ -47,7 +48,7 @@ img {
 # HEADER
 # =====================================
 st.markdown("""
-<h1 style="text-align:center;">🎬 Movie Recommendatorzzz</h1>
+<h1 style="text-align:center;">🎬 Movie Recommendator</h1>
 <p style="text-align:center;color:gray;">
 Website ini memberikan rekomendasi film berdasarkan kemiripan genre dan rating
 </p>
