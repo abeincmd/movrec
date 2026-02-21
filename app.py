@@ -96,11 +96,11 @@ with st.form("form"):
     selected_movie = st.selectbox(
         "Pilih Film Favorit:",
         movie_options,
-        index=0
+        index=0,
+        format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    # tombol di tengah
-    col1, col2, col3 = st.columns([1,2,1])
+    col1, col2, col3 = st.columns([2,1,2])
 
     with col2:
         recommend = st.form_submit_button("🎯 Cari")
