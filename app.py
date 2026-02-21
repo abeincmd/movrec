@@ -118,7 +118,7 @@ st.markdown("""
         Temukan film terbaik berdasarkan favoritmu
     </div>
     <div style="color:gray; margin-top:5px;">
-         
+    <br>
     </div>
 </div>
 """, unsafe_allow_html=True)
