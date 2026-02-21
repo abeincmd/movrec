@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # =====================================
-# CONFIG
+# CONFIG HALAMAN
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # =====================================
-# CSS (AMAN, TANPA GANGGU DROPDOWN)
+# CSS MOBILE FRIENDLY (AMAN)
 # =====================================
 st.markdown("""
 <style>
@@ -29,7 +29,7 @@ form {
     padding: 16px;
 }
 
-.stButton button, .stFormSubmitButton button {
+.stFormSubmitButton button {
     width: 100%;
     border-radius: 10px;
     padding: 12px;
@@ -54,31 +54,38 @@ Website ini memberikan rekomendasi film berdasarkan kemiripan genre dan rating
 """, unsafe_allow_html=True)
 
 # =====================================
-# LOAD DATA
+# LOAD DATASET
 # =====================================
 df = pd.read_csv("movies.csv")
 
+# gabungkan fitur untuk similarity
 df["combined"] = (
     df["genre"].fillna("") +
     " " +
     df["description"].fillna("")
 )
 
+# TF-IDF
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = vectorizer.fit_transform(df["combined"])
 
+# similarity matrix
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
-# FORM (SEARCHABLE SELECTBOX)
+# FORM INPUT (SEARCH MODE - STABIL IPHONE)
 # =====================================
 with st.form("recommend_form"):
 
+    st.markdown("### Pilih Film Favorit:")
+
+    # search box
     search = st.text_input(
-        "Pilih Film Favorit:",
+        "",
         placeholder="Ketik judul film..."
     )
 
+    # filter berdasarkan input user
     if search:
         filtered_movies = df[
             df["title"].str.contains(search, case=False, na=False)
@@ -86,19 +93,32 @@ with st.form("recommend_form"):
     else:
         filtered_movies = []
 
+    # select hasil pencarian
     selected_movie = st.selectbox(
-        "Hasil pencarian:",
+        "Hasil:",
         filtered_movies,
         index=None
     )
 
-    min_rating = st.number_input(...)
-    top_n = st.number_input(...)
+    min_rating = st.number_input(
+        "Minimal Rating:",
+        min_value=0.0,
+        max_value=10.0,
+        value=6.0,
+        step=0.1
+    )
+
+    top_n = st.number_input(
+        "Jumlah Rekomendasi:",
+        min_value=1,
+        max_value=20,
+        value=5
+    )
 
     recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
 # =====================================
-# RECOMMENDATION
+# OUTPUT REKOMENDASI
 # =====================================
 if recommend and selected_movie:
 
@@ -127,7 +147,7 @@ if recommend and selected_movie:
         if movie["rating"] < min_rating:
             continue
 
-        col1, col2 = st.columns([1,2])
+        col1, col2 = st.columns([1, 2])
 
         with col1:
 
@@ -135,6 +155,12 @@ if recommend and selected_movie:
 
             if pd.notna(poster) and poster != "":
                 st.image(poster, use_container_width=True)
+
+            else:
+                st.image(
+                    "https://via.placeholder.com/300x450?text=No+Poster",
+                    use_container_width=True
+                )
 
         with col2:
 
