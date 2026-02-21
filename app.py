@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # =====================================
-# PAGE CONFIG (WAJIB PALING ATAS)
+# PAGE CONFIG (HARUS PALING ATAS)
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
@@ -18,32 +18,40 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* center container mobile */
+/* center container */
 .block-container {
     max-width: 520px;
     padding-top: 20px;
 }
 
-/* form card */
-.form-card {
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 16px;
+/* fix dropdown supaya selalu ke bawah */
+div[data-baseweb="popover"] {
+    transform: none !important;
+    top: 100% !important;
+    bottom: auto !important;
 }
 
-/* fix dropdown supaya tidak naik */
+/* perbaiki posisi select */
 div[data-baseweb="select"] {
     position: relative !important;
 }
 
-/* dropdown menu layer */
+/* dropdown scroll */
 div[role="listbox"] {
-    position: relative !important;
-    z-index: 1000 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    z-index: 9999 !important;
 }
 
-/* tombol */
-.stButton button, .stFormSubmitButton button {
+/* form styling */
+form {
+    border: 1px solid #333;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* button full width */
+.stFormSubmitButton button {
     width: 100%;
     border-radius: 10px;
     padding: 12px;
@@ -55,16 +63,6 @@ img {
     border-radius: 10px;
 }
 
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-form {
-    border: 1px solid #333;
-    padding: 16px;
-    border-radius: 12px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -89,21 +87,23 @@ df["combined"] = (
     df["description"].fillna("")
 )
 
+# TF-IDF
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = vectorizer.fit_transform(df["combined"])
 
+# similarity matrix
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
-# FORM CONTAINER (STABIL)
+# FORM INPUT (STABIL MOBILE)
 # =====================================
-with st.form("recommend_form", clear_on_submit=False):
+with st.form("recommend_form"):
 
     st.markdown("### Pilih Film Favorit:")
 
     selected_movie = st.selectbox(
-        label="",
-        options=df["title"].tolist(),
+        "",
+        df["title"].tolist(),
         index=0,
         label_visibility="collapsed"
     )
@@ -125,10 +125,8 @@ with st.form("recommend_form", clear_on_submit=False):
 
     recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
 # =====================================
-# RECOMMENDATION
+# RECOMMENDATION OUTPUT
 # =====================================
 if recommend:
 
@@ -167,7 +165,7 @@ if recommend:
                 st.image(poster, use_container_width=True)
             else:
                 st.image(
-                    "https://via.placeholder.com/300x450",
+                    "https://via.placeholder.com/300x450?text=No+Poster",
                     use_container_width=True
                 )
 
