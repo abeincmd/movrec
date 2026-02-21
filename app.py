@@ -13,53 +13,29 @@ st.set_page_config(
 )
 
 # =====================================
-# CSS FIX MOBILE + DROPDOWN STYLE
+# CSS (AMAN, TANPA GANGGU DROPDOWN)
 # =====================================
 st.markdown("""
 <style>
 
-/* center layout */
 .block-container {
     max-width: 520px;
     padding-top: 20px;
 }
 
-/* form box */
-.form-box {
+form {
     border: 1px solid #333;
     border-radius: 12px;
     padding: 16px;
 }
 
-/* radio jadi dropdown style */
-div[role="radiogroup"] {
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 8px;
-    background-color: #1e1e1e;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-/* radio item */
-div[role="radio"] {
-    padding: 10px !important;
-    border-radius: 8px;
-}
-
-/* hover */
-div[role="radio"]:hover {
-    background-color: #333;
-}
-
-/* button */
-.stButton button {
+.stButton button, .stFormSubmitButton button {
     width: 100%;
     border-radius: 10px;
     padding: 12px;
+    font-weight: bold;
 }
 
-/* image */
 img {
     border-radius: 10px;
 }
@@ -94,40 +70,40 @@ tfidf_matrix = vectorizer.fit_transform(df["combined"])
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
-# FORM
+# FORM (SEARCHABLE SELECTBOX)
 # =====================================
-st.markdown('<div class="form-box">', unsafe_allow_html=True)
+with st.form("recommend_form"):
 
-st.markdown("**Pilih Film Favorit:**")
+    st.markdown("### Pilih Film Favorit:")
 
-selected_movie = st.radio(
-    "",
-    df["title"].tolist(),
-    index=0
-)
+    selected_movie = st.selectbox(
+        label="Ketik judul film...",
+        options=df["title"].tolist(),
+        index=None,
+        placeholder="Contoh: Inception",
+    )
 
-min_rating = st.number_input(
-    "Minimal Rating:",
-    0.0,
-    10.0,
-    6.0
-)
+    min_rating = st.number_input(
+        "Minimal Rating:",
+        min_value=0.0,
+        max_value=10.0,
+        value=6.0,
+        step=0.1
+    )
 
-top_n = st.number_input(
-    "Jumlah Rekomendasi:",
-    1,
-    20,
-    5
-)
+    top_n = st.number_input(
+        "Jumlah Rekomendasi:",
+        min_value=1,
+        max_value=20,
+        value=5
+    )
 
-recommend = st.button("🎯 Cari Rekomendasi")
-
-st.markdown("</div>", unsafe_allow_html=True)
+    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
 # =====================================
 # RECOMMENDATION
 # =====================================
-if recommend:
+if recommend and selected_movie:
 
     movie_index = df[df["title"] == selected_movie].index[0]
 
@@ -160,7 +136,7 @@ if recommend:
 
             poster = movie.get("poster_url", "")
 
-            if pd.notna(poster):
+            if pd.notna(poster) and poster != "":
                 st.image(poster, use_container_width=True)
 
         with col2:
@@ -170,13 +146,8 @@ if recommend:
             )
 
             st.write(f"Genre: {movie['genre']}")
-
             st.write(f"Rating: ⭐ {movie['rating']}")
-
-            st.write(
-                f"Nonton di : {movie['streaming_provider']}"
-            )
-
+            st.write(f"Nonton di : {movie['streaming_provider']}")
             st.write(movie["description"])
 
         st.divider()
