@@ -9,45 +9,49 @@ from sklearn.metrics.pairwise import cosine_similarity
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # =====================================
-# CSS NETFLIX STYLE SCROLL
+# CSS NETFLIX STYLE
 # =====================================
 st.markdown("""
 <style>
 
+/* scroll container */
 .row-container {
     overflow-x: auto;
     white-space: nowrap;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
 }
 
+/* card */
 .movie-card {
     display: inline-block;
     margin-right: 12px;
-    transition: transform 0.2s;
 }
 
+/* hover effect */
 .movie-card img {
-    border-radius: 10px;
+    border-radius: 12px;
+    transition: transform 0.25s;
 }
 
-.movie-card:hover {
+.movie-card img:hover {
     transform: scale(1.08);
 }
 
-/* ukuran poster */
+/* sizes */
 .poster-large img {
-    height: 260px;
+    height: 270px;
 }
 
 .poster-medium img {
     height: 200px;
 }
 
-/* hilangkan scrollbar ugly */
+/* scrollbar */
 .row-container::-webkit-scrollbar {
     height: 6px;
 }
@@ -101,7 +105,7 @@ with st.form("form"):
         recommend = st.form_submit_button("🎯 Cari")
 
 # =====================================
-# FUNCTION BUAT ROW
+# FUNCTION RENDER ROW
 # =====================================
 def render_row(title, movies, size="medium"):
 
@@ -113,7 +117,7 @@ def render_row(title, movies, size="medium"):
 
         poster = movie.get("poster_url", "")
 
-        if pd.isna(poster):
+        if pd.isna(poster) or poster == "":
             poster = "https://via.placeholder.com/300x450"
 
         html += f"""
@@ -127,7 +131,7 @@ def render_row(title, movies, size="medium"):
     st.markdown(html, unsafe_allow_html=True)
 
 # =====================================
-# BARIS 1 — REKOMENDASI UTAMA
+# BARIS 1 REKOMENDASI
 # =====================================
 if recommend and selected_movie != "":
 
@@ -154,9 +158,9 @@ if recommend and selected_movie != "":
     )
 
 # =====================================
-# BARIS 2 — MUNGKIN KAMU SUKA
+# BARIS 2 MUNGKIN SUKA
 # =====================================
-random_movies = df.sample(15)
+random_movies = df.sample(min(15, len(df)))
 
 render_row(
     "👍 Mungkin Kamu Suka",
@@ -165,7 +169,7 @@ render_row(
 )
 
 # =====================================
-# BARIS 3 — RATING TERTINGGI
+# BARIS 3 RATING TERTINGGI
 # =====================================
 top_rated = df.sort_values(
     by="rating",
