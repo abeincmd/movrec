@@ -74,11 +74,6 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # ====================================
 # FORM INPUT (NO SIDEBAR)
 # ====================================
-with st.container(border=True):
-
-    st.subheader("Pilih Film Favorit:")
-
-# ====================================
 # FORM MOBILE FIX (NO OVERLAP)
 # ====================================
 st.markdown("""
