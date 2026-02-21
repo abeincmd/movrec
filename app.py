@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -14,11 +13,22 @@ st.set_page_config(
 )
 
 # =====================================
-# CSS NETFLIX STYLE
+# CSS FIX SPACING + NETFLIX STYLE
 # =====================================
 st.markdown("""
 <style>
 
+/* hilangkan jarak atas */
+.block-container {
+    padding-top: 1rem;
+}
+
+/* center header */
+.header {
+    text-align:center;
+}
+
+/* scroll horizontal */
 .row-container {
     display: flex;
     overflow-x: auto;
@@ -34,19 +44,10 @@ st.markdown("""
 
 .movie-card img {
     border-radius: 12px;
-    transition: transform 0.2s;
-}
-
-.movie-card img {
-    border-radius: 12px;
     transition: transform 0.25s ease;
 }
 
-.movie-card img:hover {
-    transform: scale(1.08);
-}
-
-.movie-card img:hover {
+.movie-card:hover img {
     transform: scale(1.08);
 }
 
@@ -58,36 +59,6 @@ st.markdown("""
     height: 200px;
 }
 
-/* scrollbar */
-.row-container::-webkit-scrollbar {
-    height: 6px;
-}
-
-.row-container::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 10px;
-}
-
-h1 {
-    text-align: center;
-}
-
-/* center tombol dalam form */
-div[data-testid="stForm"] div.stFormSubmitButton {
-    display: flex;
-    justify-content: center;
-}
-
-/* optional: buat tombol lebih bagus */
-div.stFormSubmitButton button {
-    padding: 10px 24px;
-    border-radius: 10px;
-}
-
-/* hilangkan jarak atas */
-.block-container {
-    padding-top: 5rem;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -95,20 +66,14 @@ div.stFormSubmitButton button {
 # HEADER
 # =====================================
 st.markdown("""
-<div style="
-    text-align:center;
-    margin-top: -20px;
-">
-    <div style="font-size:40px;">🎬</div>
-    <div style="font-size:36px; font-weight:700;">
-        Movie Recommendator
-    </div>
-    <div style="color:gray; margin-top:5px;">
-        Temukan film terbaik berdasarkan favoritmu
-    </div>
-    <div style="color:gray; margin-top:5px;">
-    <br>
-    </div>
+<div class="header">
+<div style="font-size:40px;">🎬</div>
+<div style="font-size:28px; font-weight:700;">
+Movie Recommendator
+</div>
+<div style="color:gray;">
+Temukan film terbaik berdasarkan favoritmu
+</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -117,11 +82,17 @@ st.markdown("""
 # =====================================
 df = pd.read_csv("movies.csv")
 
-df["combined"] = df["genre"].fillna("") + " " + df["description"].fillna("")
+# gabungkan fitur untuk similarity
+df["combined"] = (
+    df["genre"].fillna("") + " " +
+    df["description"].fillna("")
+)
 
+# TF-IDF
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = vectorizer.fit_transform(df["combined"])
 
+# cosine similarity
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
@@ -129,35 +100,34 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # =====================================
 with st.form("form"):
 
-    movie_options = [""] + df["title"].tolist()
+    # ini kunci supaya dropdown tidak langsung tampil semua
+    movie_options = [""] + sorted(df["title"].tolist())
 
     selected_movie = st.selectbox(
         "Pilih Film Favorit:",
-        movie_options,
+        options=movie_options,
         index=0,
-        format_func=lambda x: "" if x == "" else x
+        format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    st.write("")  # spacer
+    st.write("")
 
-    # trik center tombol
-    col_left, col_center, col_right = st.columns([1,2,1])
+    # tombol center
+    col1, col2, col3 = st.columns([1,2,1])
 
-    with col_center:
+    with col2:
         recommend = st.form_submit_button(
             "🎯 Cari Rekomendasi",
             use_container_width=True
         )
-    
-        
+
 # =====================================
-# FUNCTION RENDER ROW (FIXED VERSION)
+# FUNCTION RENDER ROW
 # =====================================
 def render_row(title, movies, size):
 
-    # GANTI INI (ubah ukuran judul)
     st.markdown(
-        f"<h4 style='margin-bottom:10px;'>{title}</h4>",
+        f"<div style='font-size:18px; font-weight:600; margin-top:20px; margin-bottom:10px;'>{title}</div>",
         unsafe_allow_html=True
     )
 
@@ -181,51 +151,5 @@ def render_row(title, movies, size):
     st.markdown(html, unsafe_allow_html=True)
 
 # =====================================
-# BARIS 1 — REKOMENDASI
+# STOP DI SINI (sesuai permintaan)
 # =====================================
-if recommend and selected_movie != "":
-
-    movie_index = df[df["title"] == selected_movie].index[0]
-
-    similarity_scores = list(enumerate(similarity_matrix[movie_index]))
-
-    similarity_scores = sorted(
-        similarity_scores,
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    recommended_idx = [i for i, _ in similarity_scores[1:15]]
-
-    recommended_movies = df.iloc[recommended_idx]
-
-    render_row(
-        "🎯 Rekomendasi Untuk Kamu",
-        recommended_movies,
-        "large"
-    )
-
-# =====================================
-# BARIS 2 — RANDOM
-# =====================================
-random_movies = df.sample(min(len(df), 15))
-
-render_row(
-    "👍 Mungkin Kamu Suka",
-    random_movies,
-    "medium"
-)
-
-# =====================================
-# BARIS 3 — TOP RATED
-# =====================================
-top_rated = df.sort_values(
-    by="rating",
-    ascending=False
-).head(15)
-
-render_row(
-    "⭐ Rating Tertinggi",
-    top_rated,
-    "medium"
-)
