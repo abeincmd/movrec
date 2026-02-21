@@ -28,11 +28,22 @@ st.markdown("""
 
 .movie-card {
     flex: 0 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .movie-card img {
     border-radius: 12px;
     transition: transform 0.2s;
+}
+
+.movie-card img {
+    border-radius: 12px;
+    transition: transform 0.25s ease;
+}
+
+.movie-card img:hover {
+    transform: scale(1.08);
 }
 
 .movie-card img:hover {
