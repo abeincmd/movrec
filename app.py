@@ -82,27 +82,37 @@ with st.form("recommend_form"):
 
     selected_movie = st.selectbox(
         "Pilih Film Favorit:",
-        movie_options,
+        options=movie_options,
         index=0,
-        format_func=lambda x: "" if x == "" else x
+        format_func=lambda x: "Ketik judul film..." if x == "" else x,
+        key="movie_select"
     )
 
     min_rating = st.number_input(
         "Minimal Rating:",
-        0.0, 10.0, 6.0
+        min_value=0.0,
+        max_value=10.0,
+        value=6.0,
+        step=0.1
     )
 
     top_n = st.number_input(
         "Jumlah Rekomendasi:",
-        1, 20, 5
+        min_value=1,
+        max_value=20,
+        value=5
     )
 
-    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+    # tombol di tengah
+    col1, col2, col3 = st.columns([1,2,1])
+
+    with col2:
+        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
 # =====================================
 # OUTPUT REKOMENDASI
 # =====================================
-if recommend and selected_movie:
+if recommend and selected_movie != "":
 
     movie_index = df[df["title"] == selected_movie].index[0]
 
