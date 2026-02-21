@@ -61,6 +61,15 @@ h1 {
     text-align: center;
 }
 
+div.stFormSubmitButton {
+    text-align: center;
+}
+
+div.stFormSubmitButton button {
+    margin: auto;
+    display: block;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -100,10 +109,8 @@ with st.form("form"):
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    col1, col2, col3 = st.columns([2,1,2])
-
-    with col2:
-        recommend = st.form_submit_button("🎯 Cari")
+        recommend = st.form_submit_button("🎯 Cari Rekomendasi",use_container_width=False)
+    
         
 # =====================================
 # FUNCTION RENDER ROW (FIXED VERSION)
