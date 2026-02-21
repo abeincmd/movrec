@@ -77,42 +77,23 @@ similarity_matrix = cosine_similarity(tfidf_matrix)
 # =====================================
 with st.form("recommend_form"):
 
-    st.markdown("### Pilih Film Favorit:")
+    movie_options = [""] + df["title"].tolist()
 
-    # search box
-    search = st.text_input(
-        "",
-        placeholder="Ketik judul film..."
-    )
-
-    # filter berdasarkan input user
-    if search:
-        filtered_movies = df[
-            df["title"].str.contains(search, case=False, na=False)
-        ]["title"].tolist()
-    else:
-        filtered_movies = []
-
-    # select hasil pencarian
     selected_movie = st.selectbox(
-        "Hasil:",
-        filtered_movies,
-        index=None
+        "Pilih Film Favorit:",
+        movie_options,
+        index=0,
+        format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
     min_rating = st.number_input(
         "Minimal Rating:",
-        min_value=0.0,
-        max_value=10.0,
-        value=6.0,
-        step=0.1
+        0.0, 10.0, 6.0
     )
 
     top_n = st.number_input(
         "Jumlah Rekomendasi:",
-        min_value=1,
-        max_value=20,
-        value=5
+        1, 20, 5
     )
 
     recommend = st.form_submit_button("🎯 Cari Rekomendasi")
