@@ -109,7 +109,7 @@ with st.form("form"):
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
     
         
 # =====================================
