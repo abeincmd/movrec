@@ -68,7 +68,7 @@ h1 {
 # HEADER
 # =====================================
 st.markdown("""
-<h1 style='text-align:center;'>🎬 Movie Recommendatorzzz</h1>
+<h1 style='text-align:center;'>🎬 Movie Recommendator</h1>
 <p style='text-align:center; color:gray;'>
 Temukan film terbaik berdasarkan favoritmu
 </p>
@@ -96,15 +96,15 @@ with st.form("form"):
     selected_movie = st.selectbox(
         "Pilih Film Favorit:",
         movie_options,
-        index=0,
-        format_func=lambda x: "Ketik judul film..." if x == "" else x
+        index=0
     )
 
+    # tombol di tengah
     col1, col2, col3 = st.columns([1,2,1])
 
     with col2:
-        recommend = st.form_submit_button("🎯 Cari Film")
-
+        recommend = st.form_submit_button("🎯 Cari")
+        
 # =====================================
 # FUNCTION RENDER ROW (FIXED VERSION)
 # =====================================
