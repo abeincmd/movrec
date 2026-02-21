@@ -1,127 +1,141 @@
 import streamlit as st
 import pandas as pd
+import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# ====================================
-# KONFIGURASI HALAMAN (MOBILE FIRST)
-# ====================================
+# ==============================
+# KONFIGURASI HALAMAN
+# ==============================
 st.set_page_config(
-    page_title="Movie Recommendatorzzz",
+    page_title="Movie Recommendation System",
     page_icon="🎬",
-    layout="centered"
+    layout="wide"
 )
 
-# ====================================
-# CSS MOBILE FRIENDLY
-# ====================================
-st.markdown("""
-<style>
-
-.block-container {
-    max-width: 520px;
-    padding-top: 1rem;
-}
-
-.stButton > button {
-    width: 100%;
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-img {
-    border-radius: 10px;
-}
-
-div[data-baseweb="select"] {
-    z-index: 999 !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ====================================
+# ==============================
 # HEADER
-# ====================================
-st.markdown("""
-<h1 style="text-align:center;">🎬 Movie Recommendatorzzz</h1>
-<p style="text-align:center;color:gray;">
-Website ini memberikan rekomendasi film berdasarkan kemiripan genre dan rating
-</p>
-""", unsafe_allow_html=True)
-
-# ====================================
-# LOAD DATA
-# ====================================
-df = pd.read_csv("movies.csv")
-
-# gabungkan fitur
-df["combined"] = (
-    df["genre"].fillna("") +
-    " " +
-    df["description"].fillna("")
+# ==============================
+st.title("🎬 Movie Recommendation System")
+st.write(
+    "Website ini memberikan rekomendasi film berdasarkan kemiripan genre, deskripsi, dan rating menggunakan AI."
 )
 
-# TF-IDF
-vectorizer = TfidfVectorizer(stop_words="english")
-tfidf_matrix = vectorizer.fit_transform(df["combined"])
+st.divider()
 
-# similarity
+# ==============================
+# LOAD DATA
+# ==============================
+@st.cache_data
+def load_data():
+    return pd.read_csv("movies.csv")
+
+df = load_data()
+
+# ==============================
+# FILTER DATA
+# ==============================
+movie_list = df["title"].tolist()
+
+# ==============================
+# LAYOUT FILTER (RAPI & RESPONSIVE)
+# ==============================
+with st.container(border=True):
+
+    st.subheader("🎛️ Pengaturan Rekomendasi")
+
+    col1, col2, col3 = st.columns([2, 1, 1])
+
+    with col1:
+        selected_movie = st.selectbox(
+            "Pilih Film Favorit:",
+            movie_list
+        )
+
+    with col2:
+        min_rating = st.number_input(
+            "Minimal Rating:",
+            min_value=0.0,
+            max_value=10.0,
+            value=7.0,
+            step=0.1
+        )
+
+    with col3:
+        top_n = st.number_input(
+            "Jumlah Rekomendasi:",
+            min_value=1,
+            max_value=10,
+            value=5,
+            step=1
+        )
+
+    st.write("")
+
+    search_button = st.button(
+        "🎯 Cari Rekomendasi",
+        use_container_width=True
+    )
+
+# ==============================
+# FILTER BERDASARKAN RATING
+# ==============================
+filtered_df = df[df["rating"] >= min_rating].reset_index(drop=True)
+
+# ==============================
+# TF-IDF + COSINE SIMILARITY
+# ==============================
+filtered_df["combined"] = (
+    filtered_df["genre"] + " " + filtered_df["description"]
+)
+
+vectorizer = TfidfVectorizer(stop_words="english")
+
+tfidf_matrix = vectorizer.fit_transform(filtered_df["combined"])
+
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
-# ====================================
-# FORM INPUT (NO SIDEBAR)
-# ====================================
-# FORM MOBILE FIX (NO OVERLAP)
-# ====================================
-st.markdown("""
-<style>
+# ==============================
+# TMDB POSTER FUNCTION
+# ==============================
+def get_tmdb_poster(title):
 
-div[role="listbox"] {
-    z-index: 9999 !important;
-}
+    try:
 
-.stButton button {
-    width: 100%;
-    border-radius: 10px;
-    padding: 12px;
-    font-weight: bold;
-}
+        api_key = st.secrets["TMDB_API_KEY"]
 
-</style>
-""", unsafe_allow_html=True)
+        url = "https://api.themoviedb.org/3/search/movie"
+
+        params = {
+            "api_key": api_key,
+            "query": title
+        }
+
+        response = requests.get(url, params=params)
+
+        data = response.json()
+
+        if data["results"]:
+
+            poster_path = data["results"][0]["poster_path"]
+
+            if poster_path:
+                return "https://image.tmdb.org/t/p/w500" + poster_path
+
+        return None
+
+    except:
+        return None
 
 
-with st.form("recommend_form"):
+# ==============================
+# HASIL REKOMENDASI
+# ==============================
+if search_button:
 
-    st.markdown("**Pilih Film Favorit:**")
-
-    selected_movie = st.selectbox(
-        label="",
-        options=df["title"].tolist(),
-        label_visibility="collapsed"
-    )
-
-    min_rating = st.number_input(
-        "Minimal Rating:",
-        0.0, 10.0, 6.0
-    )
-
-    top_n = st.number_input(
-        "Jumlah Rekomendasi:",
-        1, 20, 5
-    )
-
-    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
-
-# ====================================
-# REKOMENDASI
-# ====================================
-if recommend:
-
-    movie_index = df[df["title"] == selected_movie].index[0]
+    movie_index = filtered_df[
+        filtered_df["title"] == selected_movie
+    ].index[0]
 
     similarity_scores = list(
         enumerate(similarity_matrix[movie_index])
@@ -133,29 +147,84 @@ if recommend:
         reverse=True
     )
 
-    recommended_movies = similarity_scores[1:int(top_n)+1]
+    recommended_movies = similarity_scores[1:top_n+1]
 
-    st.markdown("### 🎞️ Poster Rekomendasi")
+    # ==============================
+    # NORMALISASI SCORE
+    # ==============================
+    scores_only = [score for _, score in recommended_movies]
 
-    no = 1
+    max_score = max(scores_only)
+    min_score = min(scores_only)
+
+    results = []
 
     for i, score in recommended_movies:
 
-        movie = df.iloc[i]
+        if max_score == min_score:
+            scaled_score = 10
+        else:
+            scaled_score = (
+                1
+                + ((score - min_score)
+                   / (max_score - min_score)) * 9
+            )
 
-        # filter rating di sini (fix)
-        if movie["rating"] < min_rating:
-            continue
+        results.append({
+            "Title": filtered_df.iloc[i]["title"],
+            "Year": filtered_df.iloc[i]["year"],
+            "Genre": filtered_df.iloc[i]["genre"],
+            "Rating": filtered_df.iloc[i]["rating"],
+            "Similarity Score": round(scaled_score, 2)
+        })
 
-        poster_url = movie.get("poster_url", "")
+    results_df = pd.DataFrame(results)
 
-        col1, col2 = st.columns([1,2])
+    results_df.insert(
+        0,
+        "No",
+        range(1, len(results_df) + 1)
+    )
+
+    st.divider()
+
+    # ==============================
+    # TABEL HASIL
+    # ==============================
+    st.subheader("📊 Tabel Rekomendasi")
+
+    st.dataframe(
+        results_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+
+    # ==============================
+    # POSTER VIEW
+    # ==============================
+    st.subheader("🎞️ Poster Rekomendasi")
+
+    for i, score in recommended_movies:
+
+        movie = filtered_df.iloc[i]
+
+        poster = get_tmdb_poster(movie["title"])
+
+        col1, col2 = st.columns([1, 3])
 
         with col1:
 
-            if pd.notna(poster_url) and poster_url != "":
-                st.image(poster_url, use_container_width=True)
+            if poster:
+
+                st.image(
+                    poster,
+                    use_container_width=True
+                )
+
             else:
+
                 st.image(
                     "https://via.placeholder.com/300x450?text=No+Poster",
                     use_container_width=True
@@ -164,19 +233,30 @@ if recommend:
         with col2:
 
             st.markdown(
-                f"**{no}. {movie['title']} ({movie['year']})**"
+                f"### 🎬 {movie['title']} ({movie['year']})"
             )
-
-            st.write(f"Genre: {movie['genre']}")
-
-            st.write(f"Rating: ⭐ {movie['rating']}")
 
             st.write(
-                f"Nonton di : {movie['streaming_provider']}"
+                f"**Genre:** {movie['genre']}"
             )
 
-            st.write(movie["description"])
+            st.write(
+                f"**Rating:** ⭐ {movie['rating']}"
+            )
+
+            st.write(
+                f"**Deskripsi:** {movie['description']}"
+            )
 
         st.divider()
 
-        no += 1
+
+# ==============================
+# DATASET VIEW
+# ==============================
+with st.expander("📂 Lihat Dataset"):
+
+    st.dataframe(
+        df,
+        use_container_width=True
+    )
