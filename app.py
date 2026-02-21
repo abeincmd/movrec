@@ -9,7 +9,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 # =====================================
 st.set_page_config(
     page_title="Movie Recommendatorzzz",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # =====================================
@@ -44,6 +45,16 @@ st.markdown("""
 
 .poster-medium img {
     height: 200px;
+}
+
+/* scrollbar */
+.row-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.row-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
 }
 
 </style>
@@ -86,7 +97,7 @@ with st.form("form"):
         recommend = st.form_submit_button("🎯 Cari")
 
 # =====================================
-# FUNCTION RENDER ROW (FIXED)
+# FUNCTION RENDER ROW (FIXED VERSION)
 # =====================================
 def render_row(title, movies, size):
 
@@ -101,18 +112,18 @@ def render_row(title, movies, size):
         if pd.isna(poster) or poster == "":
             poster = "https://via.placeholder.com/300x450"
 
-        html += f"""
-        <div class="movie-card poster-{size}">
-            <img src="{poster}">
-        </div>
-        """
+        html += (
+            "<div class='movie-card poster-" + size + "'>"
+            "<img src='" + poster + "'>"
+            "</div>"
+        )
 
     html += "</div>"
 
     st.markdown(html, unsafe_allow_html=True)
 
 # =====================================
-# BARIS 1 REKOMENDASI
+# BARIS 1 — REKOMENDASI
 # =====================================
 if recommend and selected_movie != "":
 
@@ -137,7 +148,7 @@ if recommend and selected_movie != "":
     )
 
 # =====================================
-# BARIS 2 RANDOM
+# BARIS 2 — RANDOM
 # =====================================
 random_movies = df.sample(min(len(df), 15))
 
@@ -148,7 +159,7 @@ render_row(
 )
 
 # =====================================
-# BARIS 3 TOP RATED
+# BARIS 3 — TOP RATED
 # =====================================
 top_rated = df.sort_values(
     by="rating",
