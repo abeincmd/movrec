@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -12,10 +13,57 @@ st.set_page_config(
 )
 
 # =====================================
-# SESSION STATE
+# CSS NETFLIX STYLE SCROLL
 # =====================================
-if "selected_detail" not in st.session_state:
-    st.session_state.selected_detail = None
+st.markdown("""
+<style>
+
+.row-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+
+.movie-card {
+    display: inline-block;
+    margin-right: 12px;
+    transition: transform 0.2s;
+}
+
+.movie-card img {
+    border-radius: 10px;
+}
+
+.movie-card:hover {
+    transform: scale(1.08);
+}
+
+/* ukuran poster */
+.poster-large img {
+    height: 260px;
+}
+
+.poster-medium img {
+    height: 200px;
+}
+
+/* hilangkan scrollbar ugly */
+.row-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.row-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =====================================
+# HEADER
+# =====================================
+st.title("🎬 Movie Recommendatorzzz")
 
 # =====================================
 # LOAD DATA
@@ -34,11 +82,6 @@ tfidf_matrix = vectorizer.fit_transform(df["combined"])
 similarity_matrix = cosine_similarity(tfidf_matrix)
 
 # =====================================
-# HEADER
-# =====================================
-st.title("🎬 Movie Recommendatorzzz")
-
-# =====================================
 # FORM
 # =====================================
 with st.form("form"):
@@ -52,26 +95,39 @@ with st.form("form"):
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    min_rating = st.number_input(
-        "Minimal Rating",
-        0.0, 10.0, 6.0
-    )
-
-    top_n = st.number_input(
-        "Jumlah Rekomendasi",
-        1, 20, 10
-    )
-
-    # =====================================
-    # TOMBOL DI TENGAH
-    # =====================================
-    col1, col2, col3 = st.columns([1,2,1])
+    col1, col2, col3 = st.columns([2,1,2])
 
     with col2:
-        recommend = st.form_submit_button("🎯 Cari Rekomendasi")
+        recommend = st.form_submit_button("🎯 Cari")
 
 # =====================================
-# GRID POSTER
+# FUNCTION BUAT ROW
+# =====================================
+def render_row(title, movies, size="medium"):
+
+    st.subheader(title)
+
+    html = '<div class="row-container">'
+
+    for _, movie in movies.iterrows():
+
+        poster = movie.get("poster_url", "")
+
+        if pd.isna(poster):
+            poster = "https://via.placeholder.com/300x450"
+
+        html += f"""
+        <div class="movie-card poster-{size}">
+            <img src="{poster}">
+        </div>
+        """
+
+    html += "</div>"
+
+    st.markdown(html, unsafe_allow_html=True)
+
+# =====================================
+# BARIS 1 — REKOMENDASI UTAMA
 # =====================================
 if recommend and selected_movie != "":
 
@@ -87,57 +143,37 @@ if recommend and selected_movie != "":
         reverse=True
     )
 
-    recommended_movies = similarity_scores[1:int(top_n)+1]
+    recommended_idx = [i for i, _ in similarity_scores[1:15]]
 
-    st.subheader("Klik Poster")
+    recommended_movies = df.iloc[recommended_idx]
 
-    cols = st.columns(5)
-
-    for idx, (i, score) in enumerate(recommended_movies):
-
-        movie = df.iloc[i]
-
-        if movie["rating"] < min_rating:
-            continue
-
-        poster = movie.get("poster_url", "")
-
-        if pd.isna(poster):
-            poster = "https://via.placeholder.com/300x450"
-
-        col = cols[idx % 5]
-
-        with col:
-
-            if st.button(
-                movie["title"],
-                key=f"btn_{i}",
-                use_container_width=True
-            ):
-                st.session_state.selected_detail = i
-
-            st.image(poster, use_container_width=True)
+    render_row(
+        "🎯 Rekomendasi Untuk Kamu",
+        recommended_movies,
+        size="large"
+    )
 
 # =====================================
-# DETAIL
+# BARIS 2 — MUNGKIN KAMU SUKA
 # =====================================
-if st.session_state.selected_detail is not None:
+random_movies = df.sample(15)
 
-    movie = df.iloc[st.session_state.selected_detail]
+render_row(
+    "👍 Mungkin Kamu Suka",
+    random_movies,
+    size="medium"
+)
 
-    st.divider()
+# =====================================
+# BARIS 3 — RATING TERTINGGI
+# =====================================
+top_rated = df.sort_values(
+    by="rating",
+    ascending=False
+).head(15)
 
-    st.header("Detail Film")
-
-    col1, col2 = st.columns([1,2])
-
-    with col1:
-        st.image(movie["poster_url"], use_container_width=True)
-
-    with col2:
-        st.subheader(movie["title"])
-        st.write("⭐ Rating:", movie["rating"])
-        st.write("🎭 Genre:", movie["genre"])
-        st.write("📺 Nonton di:", movie["streaming_provider"])
-        st.write("📝 Deskripsi:")
-        st.write(movie["description"])
+render_row(
+    "⭐ Rating Tertinggi",
+    top_rated,
+    size="medium"
+)
