@@ -61,13 +61,16 @@ h1 {
     text-align: center;
 }
 
-div.stFormSubmitButton {
-    text-align: center;
+/* center tombol dalam form */
+div[data-testid="stForm"] div.stFormSubmitButton {
+    display: flex;
+    justify-content: center;
 }
 
+/* optional: buat tombol lebih bagus */
 div.stFormSubmitButton button {
-    margin: auto;
-    display: block;
+    padding: 10px 24px;
+    border-radius: 10px;
 }
 
 </style>
