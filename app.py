@@ -83,7 +83,7 @@ with st.form("recommend_form"):
         "Pilih Film Favorit:",
         movie_options,
         index=0,
-        format_func=lambda x: "Ketik judul film..." if x == "" else x
+        format_func=lambda x: "" if x == "" else x
     )
 
     min_rating = st.number_input(
