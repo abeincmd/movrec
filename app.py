@@ -8,7 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 # CONFIG
 # =====================================
 st.set_page_config(
-    page_title="Movie Recommendatorzzz",
+    page_title="Movie Recommendator",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -57,13 +57,22 @@ st.markdown("""
     border-radius: 10px;
 }
 
+h1 {
+    text-align: center;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # =====================================
 # HEADER
 # =====================================
-st.title("🎬 Movie Recommendatorzzz")
+st.markdown("""
+<h1 style='text-align:center;'>🎬 Movie Recommendatorzzz</h1>
+<p style='text-align:center; color:gray;'>
+Temukan film terbaik berdasarkan favoritmu
+</p>
+""", unsafe_allow_html=True)
 
 # =====================================
 # LOAD DATA
@@ -91,10 +100,10 @@ with st.form("form"):
         format_func=lambda x: "Ketik judul film..." if x == "" else x
     )
 
-    col1, col2, col3 = st.columns([2,1,2])
+    col1, col2, col3 = st.columns([1,2,1])
 
     with col2:
-        recommend = st.form_submit_button("🎯 Cari")
+        recommend = st.form_submit_button("🎯 Cari Film")
 
 # =====================================
 # FUNCTION RENDER ROW (FIXED VERSION)
