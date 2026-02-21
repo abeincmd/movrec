@@ -84,6 +84,10 @@ div.stFormSubmitButton button {
     border-radius: 10px;
 }
 
+/* hilangkan jarak atas */
+.block-container {
+    padding-top: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -98,6 +102,9 @@ st.markdown("""
     </div>
     <div style="color:gray;">
         Temukan film terbaik berdasarkan favoritmu
+    </div>
+    <div style="color:gray;">
+        <br>
     </div>
 </div>
 """, unsafe_allow_html=True)
