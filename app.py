@@ -105,15 +105,20 @@ div[data-testid="stAppViewContainer"] {
 # =====================================
 # HEADER
 # =====================================
-<div style="text-align:center; margin-top:0px;">
+st.markdown("""
+<div style="
+    text-align:center;
+    margin-top: -20px;
+">
     <div style="font-size:40px;">🎬</div>
-    <div style="font-size:28px; font-weight:700;">
+    <div style="font-size:36px; font-weight:700;">
         Movie Recommendator
     </div>
-    <div style="color:gray;">
+    <div style="color:gray; margin-top:5px;">
         Temukan film terbaik berdasarkan favoritmu
     </div>
 </div>
+""", unsafe_allow_html=True)
 
 # =====================================
 # LOAD DATA
