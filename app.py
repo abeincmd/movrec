@@ -88,17 +88,6 @@ div.stFormSubmitButton button {
 .block-container {
     padding-top: 5rem;
 }
-
-/* optional: hilangkan jarak bawah header */
-h1, h2, h3 {
-    margin-top: 0px;
-}
-
-/* optional: center container lebih rapat */
-div[data-testid="stAppViewContainer"] {
-    padding-top: 0rem;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
