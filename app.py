@@ -78,28 +78,48 @@ with st.container(border=True):
 
     st.subheader("Pilih Film Favorit:")
 
+# ====================================
+# FORM MOBILE FIX (NO OVERLAP)
+# ====================================
+st.markdown("""
+<style>
+
+div[role="listbox"] {
+    z-index: 9999 !important;
+}
+
+.stButton button {
+    width: 100%;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: bold;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+with st.form("recommend_form"):
+
+    st.markdown("**Pilih Film Favorit:**")
+
     selected_movie = st.selectbox(
-        "",
-        df["title"],
+        label="",
+        options=df["title"].tolist(),
         label_visibility="collapsed"
     )
 
     min_rating = st.number_input(
         "Minimal Rating:",
-        min_value=0.0,
-        max_value=10.0,
-        value=6.0,
-        step=0.1
+        0.0, 10.0, 6.0
     )
 
     top_n = st.number_input(
         "Jumlah Rekomendasi:",
-        min_value=1,
-        max_value=20,
-        value=5
+        1, 20, 5
     )
 
-    recommend = st.button("🎯 Cari Rekomendasi")
+    recommend = st.form_submit_button("🎯 Cari Rekomendasi")
 
 # ====================================
 # REKOMENDASI
