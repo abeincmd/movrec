@@ -120,7 +120,7 @@ with st.form("form"):
         "Pilih Film Favorit:",
         movie_options,
         index=0,
-        format_func=lambda x: "Ketik judul film..." if x == "" else x
+        format_func=lambda x: "" if x == "" else x
     )
 
     st.write("")  # spacer
