@@ -86,7 +86,7 @@ div.stFormSubmitButton button {
 
 /* hilangkan jarak atas */
 .block-container {
-    padding-top: 1rem;
+    padding-top: 3rem;
 }
 </style>
 """, unsafe_allow_html=True)
