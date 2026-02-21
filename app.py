@@ -140,7 +140,11 @@ with st.form("form"):
 # =====================================
 def render_row(title, movies, size):
 
-    st.subheader(title)
+    # GANTI INI (ubah ukuran judul)
+    st.markdown(
+        f"<h4 style='margin-bottom:10px;'>{title}</h4>",
+        unsafe_allow_html=True
+    )
 
     html = "<div class='row-container'>"
 
